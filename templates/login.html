@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/styles.css') }}">
+    <title>Login</title>
+    <style>
+        body {
+            background-color: #2c2c2c; /* Dark grey background */
+            color: #ffffff; /* White text */
+        }
+
+        .container {
+            background-color: #444444; /* Light grey for the container */
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        input[type="text"], input[type="password"] {
+            background-color: #ffffff; /* White text field */
+            color: #2c2c2c; /* Dark text in the field */
+        }
+
+        button {
+            background-color: #ffffff; /* White button */
+            color: #2c2c2c; /* Dark text on button */
+            font-weight: bold;
+        }
+
+        button:hover {
+            background-color: #dddddd; /* Light grey on hover */
+        }
+    </style>
+</head>
+<body>
+    <div class="container mt-5">
+        <h1 class="text-center">Login</h1>
+        <form id="login-form">
+            <div class="form-group">
+                <input type="text" class="form-control" id="username" name="username" placeholder="Username" required>
+            </div>
+            <div class="form-group">
+                <input type="password" class="form-control" id="password" name="password" placeholder="Password" required>
+            </div>
+            <div class="login">
+                <button type="button" class="btn btn-light btn-block" id="login-button">Login</button>
+            </div>
+            <hr/>
+            <div class="signup">
+                <button type="button" class="btn btn-light btn-block" id="signup-button">Create Account</button>
+            </div>
+        </form>
+        <div class="mt-3">
+            
+        </div>
+    </div>
+
+    <script>
+        document.getElementById("login-button").addEventListener("click", function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Get username and password values
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            // Send POST request to Flask API
+            fetch("/login", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password,
+                }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        // Handle errors based on response status
+                        throw new Error(data.message || 'Login failed');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Show success message or redirect
+                alert(data.message); // Alert the success message
+                // You can redirect to another page here if needed
+                window.location.href = "/decks";
+            })
+            .catch((error) => {
+                console.error('Error:', error); // Log any error
+                alert(error.message); // Show the error message to the user
+            });
+        });
+
+        document.getElementById("signup-button").addEventListener("click", function(event) {
+            event.preventDefault(); // Prevent the default form submission
+
+            // Get username and password values
+            const username = document.getElementById("username").value;
+            const password = document.getElementById("password").value;
+
+            // Send POST request to Flask API
+            fetch("/signup", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    username: username,
+                    password: password,
+                }),
+            })
+            .then(response => {
+                if (!response.ok) {
+                    return response.json().then(data => {
+                        // Handle errors based on response status
+                        throw new Error(data.message || 'Signup failed');
+                    });
+                }
+                return response.json();
+            })
+            .then(data => {
+                // Show success message or redirect
+                alert(data.message); // Alert the success message
+                // You can redirect to another page here if needed
+                // window.location.href = '/some-other-page'; 
+            })
+            .catch((error) => {
+                console.error('Error:', error); // Log any error
+                alert(error.message); // Show the error message to the user
+            });
+        });
+    </script>
+    
+</body>
+</html>

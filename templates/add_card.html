@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Add Card</title>
+    <style>
+        /* Dark theme styling */
+        body {
+            background-color: #2c2c2c;
+            color: #ffffff;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            background-color: #444444;
+            padding: 20px;
+            border-radius: 8px;
+            max-width: 800px;
+            margin: auto;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
+        }
+
+        h1 {
+            text-align: center;
+            color: #ffffff;
+        }
+
+        label {
+            display: block;
+            margin: 10px 0 5px;
+            font-weight: bold;
+        }
+
+        input[type="text"], select {
+            width: 100%;
+            background-color: #333333;
+            border: 1px solid #666666;
+            border-radius: 4px;
+            color: #ffffff;
+            padding: 8px;
+            margin-bottom: 15px;
+        }
+
+        /* Card list styling */
+        .card-list {
+            margin-top: 20px;
+        }
+
+        .card-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background-color: #3c3c3c;
+            padding: 10px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            position: relative;
+        }
+
+        .card-row:hover {
+            background-color: #555555;
+        }
+
+        .card-details {
+            flex-grow: 1;
+            margin-right: 10px;
+            position: relative;
+        }
+
+        /* Hover image styling */
+        .hover-image {
+            display: none;
+            position: absolute;
+            top: -400px; /* Adjust positioning as needed */
+            left: 150px;
+            width: 300px;
+            z-index: 999999999999;
+            border: 2px solid #666666;
+            border-radius: 5px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-name:hover + .hover-image {
+            display: block;
+        }
+
+        /* Button styles */
+        button {
+            background-color: #ffffff;
+            color: #2c2c2c;
+            font-weight: bold;
+            border: none;
+            padding: 10px 15px;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+            width: 100%;
+            margin-top: 10px;
+        }
+
+        button:hover {
+            background-color: #dddddd;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <button class="back-button" onclick="window.location.href='/create_deck'">Back to Deck Editing</button>
+
+        <h1>Add Card</h1>
+        <form id="add-card-form">
+            <label for="card-name">Card Name:</label>
+            <input type="text" id="card-name" name="card_name" placeholder="Search by card name">
+
+            <label for="card-type">Card Type:</label>
+            <input type="text" id="card-type" name="card_type" placeholder="Search by card type">
+
+            <label for="card-color">Card Color:</label>
+            <select id="card-color" name="card_color">
+                <option value="">All</option>
+                <option value="W">White</option>
+                <option value="U">Blue</option>
+                <option value="B">Black</option>
+                <option value="R">Red</option>
+                <option value="G">Green</option>
+                <option value="colorless">Colorless</option>
+            </select>
+
+            <label for="card-ability">Ability:</label>
+            <input type="text" id="card-ability" name="card_ability" placeholder="Search by ability">
+
+            <button type="button" id="search-button">Search</button>
+        </form>
+
+        <div class="card-list" id="card-list">
+            <!-- Dynamic card results will be rendered here -->
+        </div>
+    </div>
+
+    <script>
+        const searchButton = document.getElementById('search-button');
+        const cardList = document.getElementById('card-list');
+
+        // Fetch cards based on search criteria
+        searchButton.addEventListener('click', function() {
+            const cardName = document.getElementById('card-name').value;
+            const cardType = document.getElementById('card-type').value;
+            const cardColor = document.getElementById('card-color').value;
+            const cardAbility = document.getElementById('card-ability').value;
+
+            fetch('/search_cards', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ card_name: cardName, card_type: cardType, card_color: cardColor, card_ability: cardAbility})
+            })
+            .then(response => response.json())
+            .then(cards => {
+                // Clear previous search results
+                cardList.innerHTML = '';
+
+                // Render card results
+                cards.forEach(card => {
+                    const cardRow = document.createElement('div');
+                    cardRow.classList.add('card-row');
+
+                    const cardDetails = document.createElement('div');
+                    cardDetails.classList.add('card-details');
+
+                    // Card name element with hover effect
+                    const cardNameElement = document.createElement('span');
+                    cardNameElement.classList.add('card-name');
+                    cardNameElement.textContent = card.name;
+
+                    // Hidden hover image element
+                    const hoverImage = document.createElement('img');
+                    hoverImage.classList.add('hover-image');
+                    hoverImage.src = card.image_url; // Image URL from the card data
+                    hoverImage.alt = `Image of ${card.name}`;
+
+                    // Add to Deck button
+                    const addButton = document.createElement('button');
+                    addButton.textContent = 'Add to Deck';
+                    addButton.addEventListener('click', () => {
+                        fetch('/add_card_to_deck', {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({ card_name: card.name })
+                        })
+                        .then(response => response.json())
+                        .then(data => alert(data.message))
+                        .catch(error => console.error('Error:', error));
+                    });
+
+                    // Append elements to the card row
+                    cardDetails.appendChild(cardNameElement);
+                    cardDetails.appendChild(hoverImage);
+                    cardRow.appendChild(cardDetails);
+                    cardRow.appendChild(addButton);
+                    cardList.appendChild(cardRow);
+                });
+            })
+            .catch(error => console.error('Error:', error));
+        });
+    </script>
+</body>
+</html>
