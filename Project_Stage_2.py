@@ -70,10 +70,6 @@ class CardFormat(db.Model):
     format_name = db.Column(db.String, db.ForeignKey('formats.format_name'), primary_key=True)
     amount_allowed = db.Column(db.Integer)
 
-'''class Type(db.Model):
-    __tablename__ = 'types'
-    type_name = db.Column(db.String, primary_key=True)'''
-
 global current_username
 global current_deck_id
 
@@ -456,4 +452,4 @@ def logout():
     return jsonify({"message": "Logged out"}), 200
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    app.run(host='0.0.0.0', port=5000)
