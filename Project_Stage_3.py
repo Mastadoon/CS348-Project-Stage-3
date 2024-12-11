@@ -28,7 +28,6 @@ class Card(db.Model):
 
     __table_args__ = (
         db.Index('ix_card_card_name', 'card_name'),
-        db.Index('ix_card_mana_cost', 'mana_cost'),
     )
 
 class User(db.Model):
