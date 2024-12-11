@@ -1,0 +1,1 @@
+jsonflaskflask_sqlalchemysqlalchemysqlalchemy.ormflask_corsrequests
